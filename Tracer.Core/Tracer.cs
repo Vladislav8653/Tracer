@@ -4,34 +4,48 @@ namespace Core;
 
 public class Tracer : ITracer
 {
-    private readonly Stopwatch _stopwatch = new();
-    private StackFrame? _frame;
-    private const int StackIndex = 1;
+    private readonly Stack<MethodTrace> _methodStack = new Stack<MethodTrace>();
+    private readonly Stopwatch _stopwatch = new Stopwatch();
+    private readonly ThreadTrace _currentThread;
+
+    public Tracer()
+    {
+        _currentThread = new ThreadTrace { Id = Thread.CurrentThread.ManagedThreadId.ToString() };
+    }
 
     public void StartTrace()
     {
-        _stopwatch.Start();
-        var stackTrace = new StackTrace();
-        _frame = stackTrace.GetFrame(StackIndex);
+        _stopwatch.Restart();
     }
 
     public void StopTrace()
     {
         _stopwatch.Stop();
+        var elapsedTime = _stopwatch.ElapsedMilliseconds;
+
+        var currentMethod = new MethodTrace
+        {
+            Name = new StackTrace().GetFrame(1).GetMethod().Name,
+            Class = new StackTrace().GetFrame(1).GetMethod().DeclaringType.Name,
+            Time = elapsedTime
+        };
+
+        if (_methodStack.Count > 0)
+        {
+            _methodStack.Peek().Methods.Add(currentMethod);
+        }
+        else
+        {
+            _currentThread.Methods.Add(currentMethod);
+        }
     }
 
     public TraceResult GetTraceResult()
     {
-        var methodName = string.Empty;
-        var className = string.Empty;
-        if (_frame == null) return new TraceResult(methodName, className, _stopwatch.ElapsedMilliseconds);
-        var method = _frame.GetMethod();
-        if (method == null) return new TraceResult(methodName, className, _stopwatch.ElapsedMilliseconds);
-        if (method.DeclaringType != null)
+        return new TraceResult
         {
-            className = method.DeclaringType.Name;
-        }
-        methodName = method.Name;
-        return new TraceResult(methodName, className, _stopwatch.ElapsedMilliseconds);
+            Threads = new List<ThreadTrace> { _currentThread }
+        };
     }
 }
+
