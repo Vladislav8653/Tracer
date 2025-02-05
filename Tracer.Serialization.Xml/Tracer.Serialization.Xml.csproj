@@ -7,4 +7,8 @@
         <RootNamespace>Xml</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Tracer.Serialization.Abstractions\Tracer.Serialization.Abstractions.csproj" />
+    </ItemGroup>
+
 </Project>
