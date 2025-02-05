@@ -1,5 +1,7 @@
 using Core;
 
+namespace Abstractions;
+
 public interface ITraceResultSerializer
 {
     // Опционально: возвращает формат, используемый сериализатором (xml/json/yaml).
