@@ -6,14 +6,19 @@ class Program
     private static void Main(string[] args)
     {
         var tracer = new Tracer();
+        var bar = new Bar(tracer);  
         tracer.StartTrace();
-        Test1(69);
+        Test1(1000);
+        bar.InnerMethod(2000);
         tracer.StopTrace();
-        /*tracer.StartTrace();
-        Test2(52);
-        tracer.StopTrace();*/
+        tracer.StartTrace();
+        Test1(500);
+        tracer.StopTrace();
         var result = tracer.GetTraceResult();
-        Console.WriteLine($"{result.ClassName}---{result.MethodName}---{result.Time}");
+        foreach (var threadInfo in result.Threads)
+        {
+            Console.WriteLine(threadInfo.ToString());
+        }
     }
 
     private static void Test1(int time)
@@ -26,23 +31,21 @@ class Program
     {
         Thread.Sleep(time);
     }
-    
-    private static void Test2(int time)
+}
+
+class Bar
+{
+    private ITracer _tracer;
+
+    internal Bar(ITracer tracer)
     {
-        Thread.Sleep(time);
-        Test21(time / 2);
-        Test22(time / 2);
+        _tracer = tracer;
     }
     
-    private static void Test21(int time)
+    public void InnerMethod(int time)
     {
+        _tracer.StartTrace();
         Thread.Sleep(time);
-    }
-    
-    private static void Test22(int time)
-    {
-        Thread.Sleep(time);
-    }
-    
-    
+        _tracer.StopTrace();
+    } 
 }

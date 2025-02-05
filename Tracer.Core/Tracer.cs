@@ -1,51 +1,58 @@
+using System.Collections.Immutable;
 using System.Diagnostics;
 
 namespace Core;
 
 public class Tracer : ITracer
 {
-    private readonly Stack<MethodTrace> _methodStack = new Stack<MethodTrace>();
-    private readonly Stopwatch _stopwatch = new Stopwatch();
-    private readonly ThreadTrace _currentThread;
+    private readonly HashSet<ThreadInfo> _threads;
+    private readonly Stack<MethodInfo> _methods;
+   
 
     public Tracer()
     {
-        _currentThread = new ThreadTrace { Id = Thread.CurrentThread.ManagedThreadId.ToString() };
+        _methods = new Stack<MethodInfo>();
+        _threads = [];
     }
 
     public void StartTrace()
     {
-        _stopwatch.Restart();
+        var stackTrace = new StackTrace();
+        var methodName = stackTrace.GetFrame(1)?.GetMethod()?.Name;
+        if (methodName == null) throw new NullReferenceException("Method name was null");
+        var className = stackTrace.GetFrame(1)?.GetMethod()?.DeclaringType?.Name;
+        if (className == null) throw new NullReferenceException("Class name was null");
+        var methodInfo = new MethodInfo(new Stopwatch())
+        {
+            ClassName = className,
+            MethodName = methodName
+        };
+        _methods.Push(methodInfo);
+        methodInfo.StartTimer();
     }
 
     public void StopTrace()
     {
-        _stopwatch.Stop();
-        var elapsedTime = _stopwatch.ElapsedMilliseconds;
-
-        var currentMethod = new MethodTrace
+        var methodInfo = _methods.Pop();
+        methodInfo.StopTimer();
+        var currentThreadId = Environment.CurrentManagedThreadId;
+        _threads.Add(new ThreadInfo(currentThreadId));
+        var currentThread = _threads.First(s => s.ThreadId == currentThreadId);
+        currentThread.Time += methodInfo.Time;
+        if (_methods.Count > 0)
         {
-            Name = new StackTrace().GetFrame(1).GetMethod().Name,
-            Class = new StackTrace().GetFrame(1).GetMethod().DeclaringType.Name,
-            Time = elapsedTime
-        };
-
-        if (_methodStack.Count > 0)
-        {
-            _methodStack.Peek().Methods.Add(currentMethod);
+            var parentMethodInfo = _methods.Peek();
+            parentMethodInfo.Methods.Add(methodInfo);
         }
         else
         {
-            _currentThread.Methods.Add(currentMethod);
+            currentThread.Methods.Add(methodInfo);
         }
     }
 
     public TraceResult GetTraceResult()
     {
-        return new TraceResult
-        {
-            Threads = new List<ThreadTrace> { _currentThread }
-        };
+        return new TraceResult(_threads.ToImmutableList());
     }
 }
 

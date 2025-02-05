@@ -1,6 +1,6 @@
 namespace Core;
 
-public class TraceResult
+public class TraceResult(IReadOnlyList<ThreadInfo> threads)
 {
-   public List<ThreadTrace> ThreadTraces { get; }
-}
+    public IReadOnlyList<ThreadInfo> Threads { get; } = threads;
+} 
