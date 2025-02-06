@@ -5,7 +5,15 @@ namespace Core;
 
 public class MethodInfo
 {
-    public required Stopwatch Stopwatch { get; set; }
+    private readonly Stopwatch _stopwatch;
+    public MethodInfo(Stopwatch stopwatch)
+    {
+        _stopwatch = stopwatch;
+    }
+    public MethodInfo()
+    {
+        _stopwatch = new Stopwatch();
+    }
     public required string MethodName { get; init; } 
     public required string ClassName { get; init; }
     public long Time { get; set; }
@@ -13,13 +21,13 @@ public class MethodInfo
 
     public void StartTimer()
     {
-        Stopwatch.Start();
+        _stopwatch.Start();
     }
 
     public void StopTimer()
     {
-        Stopwatch.Stop();
-        Time = Stopwatch.ElapsedMilliseconds;
+        _stopwatch.Stop();
+        Time = _stopwatch.ElapsedMilliseconds;
     }
     
     public override string ToString()
