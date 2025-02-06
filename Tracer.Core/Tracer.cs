@@ -19,6 +19,8 @@ public class Tracer : ITracer
 
     public void StartTrace()
     {
+        if (_methods.Value is null)
+            return;
         var stackTrace = new StackTrace();
         var methodName = stackTrace.GetFrame(1)?.GetMethod()?.Name;
         if (methodName == null) throw new NullReferenceException("Method name was null");
@@ -35,6 +37,8 @@ public class Tracer : ITracer
 
     public void StopTrace()
     {
+        if (_methods.Value is null)
+            return;
         MethodInfo methodInfo;
         if (_methods.Value.Count == 0) return;
         methodInfo = _methods.Value.Pop();

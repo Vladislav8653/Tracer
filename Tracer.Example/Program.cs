@@ -80,11 +80,11 @@ public class Foo
     }
 }
 
-class Bar
+public class Bar
 {
     private readonly ITracer _tracer;
 
-    internal Bar(ITracer tracer)
+    public Bar(ITracer tracer)
     {
         _tracer = tracer;
     }
