@@ -3,23 +3,23 @@ using System.Text;
 
 namespace Core;
 
-public class MethodInfo(Stopwatch stopwatch)
+public class MethodInfo
 {
-    private readonly Stopwatch _stopwatch = stopwatch;
+    public required Stopwatch Stopwatch { get; set; }
     public required string MethodName { get; init; } 
     public required string ClassName { get; init; }
-    public long Time { get; private set; }
+    public long Time { get; set; }
     public List<MethodInfo> Methods { get; set; } = [];
 
     public void StartTimer()
     {
-        _stopwatch.Start();
+        Stopwatch.Start();
     }
 
     public void StopTimer()
     {
-        _stopwatch.Stop();
-        Time = _stopwatch.ElapsedMilliseconds;
+        Stopwatch.Stop();
+        Time = Stopwatch.ElapsedMilliseconds;
     }
     
     public override string ToString()

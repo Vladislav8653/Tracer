@@ -1,23 +1,19 @@
 using System.Reflection;
 using Abstractions;
-using Core;
 
 namespace Tracer.Serialization;
 
-public class Tracing
+public static class PluginLoader
 {
-    public void Serialize(TraceResult traceResult, Stream to)
+    public static IEnumerable<ITraceResultSerializer> LoadPlugins()
     {
-        var plugins = LoadPlugins();
-        foreach (var plugin in plugins)
-        {
-            plugin.Serialize(traceResult, to);
-        }
-    }
-    private IEnumerable<ITraceResultSerializer> LoadPlugins()
-    {
-        var pluginsDir = AppDomain.CurrentDomain.BaseDirectory;
         var plugins = new List<ITraceResultSerializer>();
+        var pluginsDir = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
+        if (!Directory.Exists(pluginsDir))
+        {
+            Console.WriteLine("Plugins directory doesn't exist");
+            return plugins;
+        }
         var pluginFiles = Directory.GetFiles(pluginsDir, "*.dll");
         foreach (var pluginFile in pluginFiles)
         {

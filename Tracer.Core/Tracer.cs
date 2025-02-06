@@ -22,8 +22,9 @@ public class Tracer : ITracer
         if (methodName == null) throw new NullReferenceException("Method name was null");
         var className = stackTrace.GetFrame(1)?.GetMethod()?.DeclaringType?.Name;
         if (className == null) throw new NullReferenceException("Class name was null");
-        var methodInfo = new MethodInfo(new Stopwatch())
+        var methodInfo = new MethodInfo
         {
+            Stopwatch = new Stopwatch(),
             ClassName = className,
             MethodName = methodName
         };
@@ -36,7 +37,7 @@ public class Tracer : ITracer
         var methodInfo = _methods.Pop();
         methodInfo.StopTimer();
         var currentThreadId = Environment.CurrentManagedThreadId;
-        _threads.Add(new ThreadInfo(currentThreadId));
+        _threads.Add(new ThreadInfo {ThreadId = currentThreadId});
         var currentThread = _threads.First(s => s.ThreadId == currentThreadId);
         currentThread.Time += methodInfo.Time;
         if (_methods.Count > 0)
@@ -52,7 +53,7 @@ public class Tracer : ITracer
 
     public TraceResult GetTraceResult()
     {
-        return new TraceResult(_threads.ToImmutableList());
+        return new TraceResult { Threads = _threads.ToImmutableList() };
     }
 }
 

@@ -2,9 +2,9 @@ using System.Text;
 
 namespace Core;
 
-public class ThreadInfo(int threadId)
+public class ThreadInfo()
 {
-    public int ThreadId { get; } = threadId;
+    public required int ThreadId { get; init; } 
     public long Time { get; set; }
     public List<MethodInfo> Methods { get; set; } = [];
 

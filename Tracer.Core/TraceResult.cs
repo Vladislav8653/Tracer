@@ -1,6 +1,8 @@
+using System.Collections.Immutable;
+
 namespace Core;
 
-public class TraceResult(IReadOnlyList<ThreadInfo> threads)
+public class TraceResult()
 {
-    public IReadOnlyList<ThreadInfo> Threads { get; } = threads;
-} 
+    public required ImmutableList<ThreadInfo> Threads { get; init; }
+}

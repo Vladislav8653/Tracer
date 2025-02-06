@@ -1,33 +1,28 @@
 ﻿using Core;
+using Tracer.Serialization;
 
 namespace Example;
 class Program
 {
-    private static void Main(string[] args)
+    private static void Main()
     {
-        var tracer = new Tracer();
-        var bar = new Bar(tracer);  
+        var tracer = new Core.Tracer();
+        var bar = new Bar(tracer);
         tracer.StartTrace();
-        Test1(1000);
-        bar.InnerMethod(2000);
-        tracer.StopTrace();
-        tracer.StartTrace();
-        Test1(500);
+        Test1(300);
+        bar.InnerMethod(200);
         tracer.StopTrace();
         var result = tracer.GetTraceResult();
-        foreach (var threadInfo in result.Threads)
+        var serializers = PluginLoader.LoadPlugins();
+        foreach (var serializer in serializers)
         {
-            Console.WriteLine(threadInfo.ToString());
+            var fileName = Path.Combine("Tracers", $"tracer.{serializer.Format}");
+            using var fileStream = new FileStream(fileName, FileMode.Create);
+            serializer.Serialize(result, fileStream);
         }
     }
 
     private static void Test1(int time)
-    {
-        Thread.Sleep(time);
-        //Test11(time / 2);
-    }
-    
-    private static void Test11(int time)
     {
         Thread.Sleep(time);
     }
