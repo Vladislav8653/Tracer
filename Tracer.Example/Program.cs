@@ -7,29 +7,8 @@ class Program
     private static void Main()
     {
         var tracer = new Core.Tracer();
-        var bar = new Bar(tracer);
-        
-        /*var threads = new Thread[3];
-
-        for (int i = 0; i < threads.Length; i++)
-        {
-            threads[i] = new Thread(() =>
-            {
-                tracer.StartTrace();
-                Test1(300, bar);
-                tracer.StopTrace();
-            });
-            threads[i].Start();
-        }
-
-
-        foreach (var thread in threads)
-        {
-            thread.Join();
-        }*/
-        
         var tasks = new List<Task>();
-        for (var i = 0; i < 4; i++)
+        for (var i = 0; i < 10; i++)
         {
             var task = Task.Run(() =>
             {
@@ -48,14 +27,6 @@ class Program
             serializer.Serialize(result, fileStream);
         }
     }
-
-    private static void Test1(int time, Bar bar)
-    {
-        Console.WriteLine("Test1 start");
-        Thread.Sleep(time);
-        bar.InnerMethod(200);
-        Console.WriteLine("Test1 finish");
-    }
 }
 
 public class Foo
@@ -72,11 +43,11 @@ public class Foo
     public void MyMethod()
     {
         _tracer.StartTrace();
-        Console.WriteLine("Outter method start");
+        Console.WriteLine("Outer method start");
          Thread.Sleep(100);
         _bar.InnerMethod(200);
         _tracer.StopTrace();
-        Console.WriteLine("Outter method finish");
+        Console.WriteLine("Outer method finish");
     }
 }
 
